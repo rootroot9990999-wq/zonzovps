@@ -1,7 +1,15 @@
+
 FROM eclipse-temurin:21-jre
+
 WORKDIR /app
-COPY zonzo-vm.jar app.jar
 
-RUN apt-get update && apt-get install -y curl && curl -sSf https://sshx.io/get | sh
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL https://sshx.io/get | sh \
+    && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["sh", "-c", "echo 'Running setup...' && sshx & java -jar app.jar"]
+COPY zonzo-vm.jar /app/app.jar
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "echo 'Starting SSHX...' && sshx & exec java -jar /app/app.jar"]
